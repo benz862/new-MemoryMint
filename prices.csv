@@ -1,0 +1,8 @@
+Price ID,Product ID,Product Name,Product Statement Descriptor,Product Tax Code,Description,Created (UTC),Amount,Currency,Interval,Interval Count,Usage Type,Aggregate Usage,Billing Scheme,Trial Period Days,Tax Behavior,credits (metadata),interval (metadata),planType (metadata)
+price_1TU9sXE6oTidvpnU7roMkBvD,prod_UT645cLGTNDCZD,Extra Stainless Steel MemoryMint Card,,,Extra Card - One-time,2026-05-06 18:09,24.95,usd,,,,,per_unit,,unspecified,,,
+price_1TU9sWE6oTidvpnUredu40cy,prod_UT64clKub31vJH,Tribute to Heritage Upgrade,,txcd_10000000,Tribute to Heritage - One-time,2026-05-06 18:09,270.00,usd,,,,,per_unit,,unspecified,,,
+price_1TU9sWE6oTidvpnUF5HBlXTU,prod_UT64f5GAkEN00r,Tribute to Legacy Upgrade,,txcd_10000000,Tribute to Legacy - Renewal,2026-05-06 18:09,149.00,usd,year,1,licensed,,per_unit,,unspecified,,,
+price_1TU9sVE6oTidvpnUwQqLbqNm,prod_UT64f5GAkEN00r,Tribute to Legacy Upgrade,,txcd_10000000,Tribute to Legacy - First Year,2026-05-06 18:08,70.00,usd,year,1,licensed,,per_unit,,unspecified,,,
+price_1TU9sVE6oTidvpnUIqfvudIY,prod_UT64La3ptAPp0V,MemoryMint Heritage,,txcd_10000000,Heritage - One-time,2026-05-06 18:08,349.00,usd,,,,,per_unit,,unspecified,,,
+price_1TU9sVE6oTidvpnUB9oFiXUi,prod_UT64SlrReSpYvJ,MemoryMint Legacy,,txcd_10000000,Legacy - Yearly,2026-05-06 18:08,149.00,usd,year,1,licensed,,per_unit,,unspecified,,,
+price_1TU9sUE6oTidvpnU68kvcOKw,prod_UT646h44yq9bWn,MemoryMint Tribute,,txcd_10000000,Tribute - One-time,2026-05-06 18:08,79.00,usd,,,,,per_unit,,unspecified,,,
