@@ -1,21 +1,23 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { loadPaidCheckoutContext } from "@/lib/checkout-session";
-import { MEMORIAL_STYLE_OPTIONS } from "@/lib/memorial-styles";
-import { computeHostingExpires } from "@/lib/plans";
-import { getStripe } from "@/lib/stripe";
-import { slugifyName } from "@/lib/slug";
+import { assertPlatformAdmin } from "@/app/admin/actions";
 import { allocateMemorialSlug } from "@/lib/allocate-memorial-slug";
+import { MEMORIAL_STYLE_OPTIONS } from "@/lib/memorial-styles";
+import { computeHostingExpires, HOSTING_PLANS } from "@/lib/plans";
+import { slugifyName } from "@/lib/slug";
 import { STORAGE_BUCKETS } from "@/lib/storage-buckets";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
-import type { MemorialStyle } from "@/types/database";
+import type { HostingPlan, MemorialStyle } from "@/types/database";
 
 const styleValues = MEMORIAL_STYLE_OPTIONS.map((o) => o.value) as [
   MemorialStyle,
   ...MemorialStyle[],
 ];
+
+const hostingPlanValues = HOSTING_PLANS as [HostingPlan, ...HostingPlan[]];
 
 const formSchema = z.object({
   full_name: z.string().min(2).max(200),
@@ -26,12 +28,20 @@ const formSchema = z.object({
   family_contact_email: z.string().email(),
   style: z.enum(styleValues),
   obituary: z.string().min(10).max(20000),
-  stripe_session_id: z.string().min(10),
+  hosting_plan: z.enum(hostingPlanValues),
+  initial_status: z.enum(["draft", "published"]),
 });
 
-export async function createMemorialAction(
+export async function createMemorialAsAdminAction(
   formData: FormData
 ): Promise<{ ok: true; slug: string } | { error: string }> {
+  let userId: string;
+  try {
+    ({ userId } = await assertPlatformAdmin());
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "Forbidden" };
+  }
+
   const parsed = formSchema.safeParse({
     full_name: formData.get("full_name"),
     birth_date: formData.get("birth_date"),
@@ -41,7 +51,8 @@ export async function createMemorialAction(
     family_contact_email: formData.get("family_contact_email"),
     style: formData.get("style"),
     obituary: formData.get("obituary"),
-    stripe_session_id: formData.get("stripe_session_id"),
+    hosting_plan: formData.get("hosting_plan"),
+    initial_status: formData.get("initial_status"),
   });
 
   if (!parsed.success) {
@@ -59,54 +70,10 @@ export async function createMemorialAction(
     return { error: "Photo must be JPG, PNG, or WebP." };
   }
 
-  const checkout = await loadPaidCheckoutContext(parsed.data.stripe_session_id);
-  if (!checkout.ok) {
-    return { error: "This checkout link is no longer valid." };
-  }
-
   const admin = createServiceRoleClient();
-
-  const { data: existing } = await admin
-    .from("memorials")
-    .select("slug")
-    .eq("stripe_checkout_session_id", checkout.sessionId)
-    .maybeSingle();
-
-  if (existing?.slug) {
-    return { ok: true, slug: existing.slug };
-  }
-
-  const stripe = getStripe();
-  const stripeSession = await stripe.checkout.sessions.retrieve(
-    checkout.sessionId,
-    { expand: ["subscription", "customer"] }
-  );
-
-  if (stripeSession.status !== "complete") {
-    return { error: "We could not confirm your payment. Please try again or contact support." };
-  }
-
-  const plan = checkout.plan;
-  const publishedAt = new Date();
-
-  const subscriptionId =
-    stripeSession.mode === "subscription"
-      ? typeof stripeSession.subscription === "string"
-        ? stripeSession.subscription
-        : stripeSession.subscription && typeof stripeSession.subscription === "object" && "id" in stripeSession.subscription
-          ? (stripeSession.subscription as { id: string }).id
-          : null
-      : null;
-
-  const customerRaw = stripeSession.customer;
-  const customerId =
-    typeof customerRaw === "string"
-      ? customerRaw
-      : customerRaw &&
-          typeof customerRaw === "object" &&
-          "id" in customerRaw
-        ? (customerRaw as { id: string }).id
-        : null;
+  const plan = parsed.data.hosting_plan;
+  const isPublished = parsed.data.initial_status === "published";
+  const publishedAt = isPublished ? new Date() : null;
 
   const memorialId = crypto.randomUUID();
   const ext =
@@ -132,12 +99,14 @@ export async function createMemorialAction(
   const baseSlug = slugifyName(parsed.data.full_name);
   const slug = await allocateMemorialSlug(baseSlug);
 
-  const hostingExpires = computeHostingExpires(plan, publishedAt);
+  const hostingExpires = publishedAt
+    ? computeHostingExpires(plan, publishedAt)
+    : null;
 
   const { error: insErr } = await admin.from("memorials").insert({
     id: memorialId,
     slug,
-    status: "published",
+    status: isPublished ? "published" : "draft",
     full_name: parsed.data.full_name,
     birth_date: parsed.data.birth_date,
     passing_date: parsed.data.passing_date,
@@ -149,17 +118,21 @@ export async function createMemorialAction(
     obituary: parsed.data.obituary,
     hosting_plan: plan,
     hosting_expires_at: hostingExpires?.toISOString() ?? null,
-    stripe_customer_id: customerId,
-    stripe_subscription_id: subscriptionId,
-    stripe_checkout_session_id: checkout.sessionId,
+    stripe_customer_id: null,
+    stripe_subscription_id: null,
+    stripe_checkout_session_id: null,
     accepts_guest_submissions: true,
-    published_at: publishedAt.toISOString(),
+    created_by: userId,
+    published_at: publishedAt?.toISOString() ?? null,
   });
 
   if (insErr) {
     await admin.storage.from(STORAGE_BUCKETS.memorialImages).remove([objectPath]);
     return { error: insErr.message };
   }
+
+  revalidatePath("/admin/memorials");
+  revalidatePath("/admin");
 
   return { ok: true, slug };
 }

@@ -5,19 +5,22 @@ import { revalidatePath } from "next/cache";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import type { SubmissionStatus } from "@/types/database";
 
-async function assertPlatformAdmin() {
+export async function assertPlatformAdmin(): Promise<{
+  supabase: ReturnType<typeof createServerSupabaseClient>;
+  userId: string;
+}> {
   const supabase = createServerSupabaseClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user?.email) {
+  if (!user?.email || !user.id) {
     throw new Error("Unauthorized");
   }
   const { data, error } = await supabase.rpc("is_platform_admin");
   if (error || !data) {
     throw new Error("Forbidden");
   }
-  return supabase;
+  return { supabase, userId: user.id };
 }
 
 export async function setSubmissionStatusAction(
@@ -28,16 +31,13 @@ export async function setSubmissionStatusAction(
     return { error: "Invalid status" };
   }
   try {
-    const supabase = await assertPlatformAdmin();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const { supabase, userId } = await assertPlatformAdmin();
     const { error } = await supabase
       .from("submissions")
       .update({
         status,
         moderated_at: new Date().toISOString(),
-        moderated_by: user?.id ?? null,
+        moderated_by: userId,
       })
       .eq("id", submissionId);
 
@@ -54,7 +54,7 @@ export async function deleteSubmissionAction(
   submissionId: string
 ): Promise<{ ok: true } | { error: string }> {
   try {
-    const supabase = await assertPlatformAdmin();
+    const { supabase } = await assertPlatformAdmin();
     const { error } = await supabase
       .from("submissions")
       .delete()
@@ -72,7 +72,7 @@ export async function setMemorialPublishedAction(
   status: "draft" | "published" | "archived"
 ): Promise<{ ok: true } | { error: string }> {
   try {
-    const supabase = await assertPlatformAdmin();
+    const { supabase } = await assertPlatformAdmin();
     const payload =
       status === "published"
         ? { status, published_at: new Date().toISOString() as string }
