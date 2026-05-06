@@ -29,16 +29,35 @@ export async function GET(request: Request) {
   const mode =
     planParam === "legacy" ? ("subscription" as const) : ("payment" as const);
 
-  const session = await stripe.checkout.sessions.create({
-    mode,
-    line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${siteUrl}/create-memorial?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteUrl}/#pricing`,
-    metadata: { plan: planParam },
-    customer_creation:
-      mode === "payment" ? "always" : ("if_required" as const),
-    billing_address_collection: "auto",
-  });
+  // Stripe: customer_creation is only valid for payment and setup modes, not subscription.
+  const sessionParams =
+    mode === "payment"
+      ? ({
+          mode,
+          line_items: [{ price: priceId, quantity: 1 }],
+          success_url: `${siteUrl}/create-memorial?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${siteUrl}/#pricing`,
+          metadata: { plan: planParam },
+          customer_creation: "always" as const,
+          billing_address_collection: "auto" as const,
+        } satisfies Parameters<typeof stripe.checkout.sessions.create>[0])
+      : ({
+          mode,
+          line_items: [{ price: priceId, quantity: 1 }],
+          success_url: `${siteUrl}/create-memorial?session_id={CHECKOUT_SESSION_ID}`,
+          cancel_url: `${siteUrl}/#pricing`,
+          metadata: { plan: planParam },
+          billing_address_collection: "auto" as const,
+        } satisfies Parameters<typeof stripe.checkout.sessions.create>[0]);
+
+  let session;
+  try {
+    session = await stripe.checkout.sessions.create(sessionParams);
+  } catch (e) {
+    const message =
+      e instanceof Error ? e.message : "Could not start checkout with Stripe.";
+    return NextResponse.json({ error: message }, { status: 502 });
+  }
 
   if (!session.url) {
     return NextResponse.json(
