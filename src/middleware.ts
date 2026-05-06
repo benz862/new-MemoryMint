@@ -26,7 +26,23 @@ export async function middleware(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  const path = request.nextUrl.pathname;
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (path.startsWith("/admin") && !path.startsWith("/admin/login")) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    const { data: isAdmin, error } = await supabase.rpc("is_platform_admin");
+    if (error || !isAdmin) {
+      const login = new URL("/admin/login", request.url);
+      login.searchParams.set("error", "forbidden");
+      return NextResponse.redirect(login);
+    }
+  }
 
   return response;
 }

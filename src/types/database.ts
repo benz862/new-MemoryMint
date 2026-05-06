@@ -69,9 +69,20 @@ export type SubmissionRow = {
   moderated_by: string | null;
 };
 
+export type PlatformAdminRow = {
+  email: string;
+  created_at: string;
+};
+
 export interface Database {
   public: {
     Tables: {
+      platform_admins: {
+        Row: PlatformAdminRow;
+        Insert: { email: string };
+        Update: never;
+        Relationships: [];
+      };
       memorials: {
         Row: MemorialRow;
         Insert: {
@@ -121,6 +132,11 @@ export interface Database {
       };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      is_platform_admin: {
+        Args: Record<string, never>;
+        Returns: boolean;
+      };
+    };
   };
 }
