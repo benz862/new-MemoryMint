@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { TierPreviewButtons } from "@/components/admin/tier-preview-buttons";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export default async function AdminOverviewPage() {
@@ -20,6 +21,21 @@ export default async function AdminOverviewPage() {
       <p className="mt-2 text-muted">
         Platform-wide control for memorials and guest submissions.
       </p>
+
+      <section className="mt-14 rounded-2xl border border-foreground/10 bg-accent-soft/20 p-8">
+        <h2 className="font-display text-xl text-foreground">
+          Preview client memorial (by tier)
+        </h2>
+        <p className="mt-2 max-w-2xl text-sm text-muted">
+          You are already signed in as platform admin. Use the buttons below to
+          open the public memorial experience for each plan in a new tab—no
+          separate passwords or family accounts required. Apply the sample-data
+          migration in Supabase if these links show “not found.”
+        </p>
+        <div className="mt-8">
+          <TierPreviewButtons />
+        </div>
+      </section>
 
       <div className="mt-10 grid gap-6 sm:grid-cols-2">
         <Link

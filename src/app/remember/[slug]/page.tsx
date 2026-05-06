@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { GuestMemoryForm } from "@/app/remember/[slug]/guest-memory-form";
+import { MemorialPlanRibbon } from "@/components/memorial-plan-ribbon";
 import { STORAGE_BUCKETS } from "@/lib/storage-buckets";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role";
@@ -26,7 +27,7 @@ export default async function MemorialPage({
   const { data: memorial, error } = await supabase
     .from("memorials")
     .select(
-      "id, full_name, birth_date, passing_date, funeral_date, funeral_location, obituary, main_photo_path, accepts_guest_submissions"
+      "id, full_name, birth_date, passing_date, funeral_date, funeral_location, obituary, main_photo_path, accepts_guest_submissions, hosting_plan"
     )
     .eq("slug", slug)
     .eq("status", "published")
@@ -35,6 +36,8 @@ export default async function MemorialPage({
   if (error || !memorial) {
     notFound();
   }
+
+  const isSamplePreview = slug.startsWith("sample-memorymint-");
 
   let heroUrl: string | null = null;
   if (memorial.main_photo_path) {
@@ -54,6 +57,14 @@ export default async function MemorialPage({
 
   return (
     <article className="min-h-screen pb-24 pt-12">
+      {isSamplePreview ? (
+        <div className="px-6 pt-4 sm:px-10">
+          <MemorialPlanRibbon
+            plan={memorial.hosting_plan}
+            preview
+          />
+        </div>
+      ) : null}
       <header className="relative px-6 sm:px-10">
         {heroUrl ? (
           <div className="relative mx-auto aspect-[16/10] max-h-[70vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-foreground/5 shadow-sm">
