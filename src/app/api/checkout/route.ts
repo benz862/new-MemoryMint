@@ -1,8 +1,27 @@
 import { NextResponse } from "next/server";
+import Stripe from "stripe";
 
 import { getSiteUrl } from "@/lib/site-url";
 import { getStripe } from "@/lib/stripe";
 import { getStripePriceId, isHostingPlan } from "@/lib/plans";
+
+function checkoutErrorResponse(e: unknown) {
+  if (e instanceof Stripe.errors.StripeError) {
+    const status =
+      e instanceof Stripe.errors.StripeInvalidRequestError ? 400 : 502;
+    return NextResponse.json(
+      {
+        error: e.message,
+        stripe_type: e.type,
+        ...(e.code ? { stripe_code: e.code } : {}),
+      },
+      { status }
+    );
+  }
+  const message =
+    e instanceof Error ? e.message : "Could not start checkout with Stripe.";
+  return NextResponse.json({ error: message }, { status: 502 });
+}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -54,9 +73,7 @@ export async function GET(request: Request) {
   try {
     session = await stripe.checkout.sessions.create(sessionParams);
   } catch (e) {
-    const message =
-      e instanceof Error ? e.message : "Could not start checkout with Stripe.";
-    return NextResponse.json({ error: message }, { status: 502 });
+    return checkoutErrorResponse(e);
   }
 
   if (!session.url) {
