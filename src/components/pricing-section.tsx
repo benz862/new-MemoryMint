@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 import { PLAN_LABELS } from "@/lib/plans";
 import type { HostingPlan } from "@/types/database";
 
@@ -89,14 +87,14 @@ export function PricingSection() {
                     </li>
                   ))}
                 </ul>
-                <Link
+                <a
                   href={`/api/checkout?plan=${plan}`}
                   className="mt-10 inline-flex min-h-12 items-center justify-center rounded-full bg-foreground px-6 text-center text-sm font-medium text-background transition hover:opacity-90"
                 >
                   {plan === "tribute" && "Create Tribute memorial"}
                   {plan === "legacy" && "Create Legacy memorial"}
                   {plan === "heritage" && "Create Heritage memorial"}
-                </Link>
+                </a>
               </div>
             );
           })}
