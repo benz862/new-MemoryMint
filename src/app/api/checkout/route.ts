@@ -6,16 +6,46 @@ import { getStripe } from "@/lib/stripe";
 import { getStripePriceId, isHostingPlan } from "@/lib/plans";
 
 function checkoutErrorResponse(e: unknown) {
-  if (e instanceof Stripe.errors.StripeError) {
-    const status =
-      e instanceof Stripe.errors.StripeInvalidRequestError ? 400 : 502;
+  if (e instanceof Stripe.errors.StripeInvalidRequestError) {
     return NextResponse.json(
       {
         error: e.message,
         stripe_type: e.type,
         ...(e.code ? { stripe_code: e.code } : {}),
       },
-      { status }
+      { status: 400 }
+    );
+  }
+  if (e instanceof Stripe.errors.StripeConnectionError) {
+    return NextResponse.json(
+      {
+        error: e.message,
+        stripe_type: e.type,
+        hint:
+          "No HTTPS response from Stripe (after SDK retries). Check: STRIPE_SECRET_KEY in Vercel has no accidental spaces or newlines; unset HTTP_PROXY/HTTPS_PROXY unless you intend to proxy; see https://status.stripe.com/ ; retry in a minute.",
+      },
+      { status: 503 }
+    );
+  }
+  if (e instanceof Stripe.errors.StripeAuthenticationError) {
+    return NextResponse.json(
+      {
+        error: e.message,
+        stripe_type: e.type,
+        hint:
+          "Invalid or revoked API key, or test/live mismatch. Re-copy STRIPE_SECRET_KEY from Stripe Dashboard → Developers → API keys.",
+      },
+      { status: 502 }
+    );
+  }
+  if (e instanceof Stripe.errors.StripeError) {
+    return NextResponse.json(
+      {
+        error: e.message,
+        stripe_type: e.type,
+        ...(e.code ? { stripe_code: e.code } : {}),
+      },
+      { status: 502 }
     );
   }
   const message =
