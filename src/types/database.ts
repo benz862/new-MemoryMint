@@ -27,6 +27,8 @@ export type SubmissionStatus =
   | "rejected"
   | "family_only";
 
+export type MemorialAdminRole = "owner" | "admin";
+
 export type MemorialRow = {
   id: string;
   slug: string;
@@ -109,6 +111,23 @@ export interface Database {
           published_at?: string | null;
         };
         Update: Partial<Omit<MemorialRow, "created_at" | "updated_at">>;
+        Relationships: [];
+      };
+      memorial_admins: {
+        Row: {
+          memorial_id: string;
+          user_id: string;
+          role: MemorialAdminRole;
+          created_at: string;
+        };
+        Insert: {
+          memorial_id: string;
+          user_id: string;
+          role?: MemorialAdminRole;
+        };
+        Update: Partial<{
+          role: MemorialAdminRole;
+        }>;
         Relationships: [];
       };
       submissions: {

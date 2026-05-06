@@ -44,6 +44,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
+  if (path.startsWith("/family") && !path.startsWith("/family/login")) {
+    if (!user) {
+      return NextResponse.redirect(new URL("/family/login", request.url));
+    }
+  }
+
   return response;
 }
 
