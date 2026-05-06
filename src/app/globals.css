@@ -19,6 +19,18 @@ body {
   background: var(--background);
 }
 
+/* Premium tier showcase routes (/experience/*) */
+.showcase-root {
+  --showcase-bg: #f7f3ee;
+  --showcase-fg: #1e1e1e;
+  --showcase-muted: #5c5854;
+  --showcase-teal: #6fb7b2;
+  --showcase-gold: #d4af63;
+  --showcase-divider: #e5ddd3;
+  background-color: var(--showcase-bg);
+  color: var(--showcase-fg);
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

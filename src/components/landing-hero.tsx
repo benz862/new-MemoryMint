@@ -112,10 +112,10 @@ export function LandingHero() {
                 Create a memorial
               </a>
               <a
-                href="/#examples"
+                href="/experience"
                 className="inline-flex min-h-12 min-w-[200px] items-center justify-center rounded-full border-2 border-brand/25 bg-white/70 px-8 text-sm font-semibold text-brand backdrop-blur transition hover:border-brand/50 hover:bg-white"
               >
-                View examples
+                Explore memorial plans
               </a>
             </motion.div>
             <motion.p

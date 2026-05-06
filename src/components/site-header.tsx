@@ -8,6 +8,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/client";
 
 const navLinks = [
   { href: "/#how-it-works", label: "How it works" },
+  { href: "/experience", label: "Memorial plans" },
   { href: "/#pricing", label: "Pricing" },
   { href: "/#examples", label: "Memorial examples" },
   { href: "/#about", label: "About us" },
