@@ -3,11 +3,15 @@
 @tailwind utilities;
 
 :root {
-  --background: #f7f4ef;
-  --foreground: #1c1b19;
-  --muted: #5c5854;
-  --accent: #b08d57;
-  --accent-soft: #e8dfd2;
+  --background: #faf8f4;
+  --foreground: #0f1a18;
+  --muted: #4d5a56;
+  --accent: #2d6a5f;
+  --accent-soft: #d8ebe6;
+  --brand: #0d2822;
+  --brand-hover: #143832;
+  --sunset-mid: #f4c4a8;
+  --hero-deep: #0a1f1a;
 }
 
 body {

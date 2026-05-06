@@ -48,7 +48,7 @@ export function PricingSection() {
   return (
     <section
       id="pricing"
-      className="border-t border-foreground/10 bg-background px-6 py-24 sm:px-10"
+      className="scroll-mt-24 border-t border-foreground/10 bg-background px-6 py-24 sm:px-10"
     >
       <div className="mx-auto max-w-6xl">
         <h2 className="font-display text-center text-3xl text-foreground sm:text-4xl">
@@ -89,7 +89,7 @@ export function PricingSection() {
                 </ul>
                 <a
                   href={`/api/checkout?plan=${plan}`}
-                  className="mt-10 inline-flex min-h-12 items-center justify-center rounded-full bg-foreground px-6 text-center text-sm font-medium text-background transition hover:opacity-90"
+                  className="mt-10 inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-6 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-brand-hover"
                 >
                   {plan === "tribute" && "Create Tribute memorial"}
                   {plan === "legacy" && "Create Legacy memorial"}

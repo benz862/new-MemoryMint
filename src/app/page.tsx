@@ -1,4 +1,7 @@
+import { LandingAboutFaq } from "@/components/landing-about-faq";
+import { LandingExamples } from "@/components/landing-examples";
 import { LandingHero } from "@/components/landing-hero";
+import { LandingRememberTogether } from "@/components/landing-remember-together";
 import { PricingSection } from "@/components/pricing-section";
 
 const steps = [
@@ -12,9 +15,10 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <LandingHero />
+      <LandingRememberTogether />
       <section
         id="how-it-works"
-        className="border-t border-foreground/10 bg-background px-6 py-20 sm:px-10"
+        className="scroll-mt-24 border-t border-foreground/10 bg-background px-6 py-20 sm:px-10"
       >
         <div className="mx-auto max-w-5xl">
           <h2 className="font-display text-center text-3xl text-foreground sm:text-4xl">
@@ -23,7 +27,7 @@ export default function Home() {
           <ol className="mt-14 grid list-none gap-10 p-0 sm:grid-cols-2 lg:grid-cols-4">
             {steps.map((title, i) => (
               <li key={title} className="text-center font-sans">
-                <span className="font-display text-3xl tabular-nums text-accent">
+                <span className="font-display text-3xl tabular-nums text-brand">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <p className="mt-4 text-base leading-relaxed text-muted">{title}</p>
@@ -32,7 +36,9 @@ export default function Home() {
           </ol>
         </div>
       </section>
+      <LandingExamples />
       <PricingSection />
+      <LandingAboutFaq />
     </div>
   );
 }

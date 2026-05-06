@@ -14,6 +14,10 @@ const config: Config = {
         muted: "var(--muted)",
         accent: "var(--accent)",
         "accent-soft": "var(--accent-soft)",
+        brand: "var(--brand)",
+        "brand-hover": "var(--brand-hover)",
+        "sunset-mid": "var(--sunset-mid)",
+        "hero-deep": "var(--hero-deep)",
       },
       fontFamily: {
         sans: ["var(--font-sans)", "system-ui", "sans-serif"],

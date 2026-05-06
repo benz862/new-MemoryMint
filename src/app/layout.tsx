@@ -20,9 +20,9 @@ const sans = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "MemoryMint — Preserve the stories before they disappear",
+  title: "MemoryMint — Honor their memory, preserve their story",
   description:
-    "Create a beautiful memorial space where family and friends can share stories, photos, videos, and memories in minutes.",
+    "A gentle digital memorial for photos, videos, and written memories—QR sharing, guestbook, and family moderation.",
 };
 
 export default async function RootLayout({
