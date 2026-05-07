@@ -15,18 +15,18 @@ export function ExperienceHub() {
   return (
     <main className="overflow-x-hidden pb-32">
       <section className="relative min-h-[min(100dvh,920px)]">
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-showcase-ivory via-showcase-mist to-[#dfece9]" />
+        <div className="absolute right-0 top-0 h-[70%] w-[55%] max-w-3xl opacity-[0.35]">
           <Image
-            src="/experience-hero-premium.png"
-            alt="Elegant memorial showcase scene with tablet, card, and soft candlelight."
+            src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1600&q=80"
+            alt=""
             fill
             className="object-cover object-center"
-            sizes="100vw"
+            sizes="(max-width:1024px) 0px, 50vw"
             priority
           />
         </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-showcase-ivory/96 via-showcase-ivory/90 to-showcase-ivory/30 lg:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-showcase-ivory/88 via-transparent to-showcase-ivory/10" />
+        <div className="absolute inset-0 bg-gradient-to-r from-showcase-ivory via-showcase-ivory/95 to-showcase-ivory/40 lg:to-transparent" />
 
         <div className="relative z-10 mx-auto grid max-w-6xl gap-16 px-6 pb-24 pt-28 lg:grid-cols-2 lg:items-center lg:pt-32">
           <div>
